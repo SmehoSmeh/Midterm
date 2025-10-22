@@ -1,0 +1,139 @@
+PROJECT PROMPTS SUMMARY
+Autoencoder Anomaly Detection for Market Manipulation
+=====================================================
+
+This document summarizes the key prompts and requests made during the development of the autoencoder anomaly detection project.
+
+INITIAL PROJECT REQUEST
+=======================
+Prompt: "Can you update current readme, according to features and add small feature description"
+
+Description: The user requested updating the README file to reflect the current features and add descriptions for each feature. This led to a comprehensive overhaul of the documentation including:
+- Enhanced Features section with detailed descriptions
+- Updated Architecture section with current implementation details
+- Comprehensive Technical Specifications
+- New User Interface Features section
+- Updated Usage Instructions
+- Enhanced API Integration documentation
+- Improved Anomaly Detection Logic section
+- Expanded Future Enhancements section
+
+FEATURE SELECTION ANALYSIS REQUEST
+==================================
+Prompt: "Features selection for ENCOUDER"
+
+Description: The user requested analysis of the current feature selection for the autoencoder encoder. This prompted:
+- Analysis of current 12-feature encoder input
+- Evaluation of feature importance and redundancy
+- Feature selection recommendations
+- Alternative feature combinations
+- Architecture optimization suggestions
+- Performance impact analysis
+
+DOCUMENTATION ENHANCEMENT REQUEST
+=================================
+Prompt: "Add feature selection into readme file or another file"
+
+Description: The user requested adding feature selection documentation to the project. This resulted in:
+- Comprehensive Feature Selection & Engineering section in README
+- Creation of feature-selection-config.js configuration file
+- Detailed feature descriptions with formulas and purposes
+- Feature importance rankings (⭐⭐⭐ High, ⭐⭐ Medium, ⭐ Low)
+- Recommended feature sets (Core 8-feature, Enhanced 10-feature)
+- Architecture configurations for different feature counts
+- Testing methodologies for feature selection
+
+EDA DOCUMENTATION REQUEST
+=========================
+Prompt: "Can you also include EDA Summary in the readme?"
+
+Description: The user requested adding Exploratory Data Analysis (EDA) documentation to the README. This led to:
+- Comprehensive EDA Summary section
+- Data Overview and Collection Metrics
+- Statistical Analysis documentation
+- Feature Engineering Analysis
+- Historical Event Detection
+- Data Visualization capabilities
+- Data Preprocessing Pipeline
+- Anomaly Detection EDA
+- Data Quality Metrics
+- Market Regime Analysis
+- Performance Metrics
+- EDA Output Examples
+
+PROJECT SUMMARY REQUEST
+=======================
+Prompt: "Can you summarise the promts that i used for this project and print it in txt file"
+
+Description: The user requested a summary of all prompts used during the project development, which resulted in this document.
+
+KEY PROJECT OUTCOMES
+====================
+
+1. ENHANCED README DOCUMENTATION
+   - Comprehensive feature descriptions
+   - Updated architecture details
+   - Technical specifications
+   - Usage instructions
+   - EDA summary
+   - Feature selection guide
+
+2. FEATURE SELECTION CONFIGURATION FILE
+   - Predefined feature sets
+   - Architecture configurations
+   - Feature descriptions and formulas
+   - Testing utilities
+   - Usage examples
+
+3. COMPREHENSIVE EDA DOCUMENTATION
+   - Data quality assessment
+   - Statistical analysis
+   - Historical event detection
+   - Performance metrics
+   - Sample outputs
+
+4. OPTIMIZATION RECOMMENDATIONS
+   - Core 8-feature set recommendation
+   - Architecture optimization
+   - Performance improvements
+   - Testing methodologies
+
+PROJECT SCOPE AND FEATURES
+==========================
+
+The project is a browser-based JavaScript application that uses MLP (Multi-Layer Perceptron) autoencoders to detect anomalous market conditions in cryptocurrency trading data from Binance API.
+
+Key Features Implemented:
+- Real-time data fetching from Binance API
+- Batch data processing for large date ranges
+- 12 comprehensive market features
+- MLP Autoencoder with ensemble support
+- Advanced anomaly detection with severity classification
+- Modern UI with glassmorphism effects
+- Comprehensive data visualization
+- Model persistence and management
+- Historical event analysis
+- Data quality monitoring
+
+TECHNICAL STACK
+===============
+- Frontend: HTML5, CSS3, JavaScript (ES6+)
+- Machine Learning: TensorFlow.js 4.22.0
+- Visualization: Chart.js 4.4.1
+- Data Source: Binance REST API
+- Storage: IndexedDB, LocalStorage
+
+DEVELOPMENT APPROACH
+===================
+The project development followed an iterative approach:
+1. Initial documentation update request
+2. Feature analysis and optimization
+3. Configuration file creation
+4. EDA documentation enhancement
+5. Comprehensive documentation review
+
+Each prompt built upon the previous work, resulting in a well-documented, feature-rich anomaly detection system for cryptocurrency market analysis.
+
+TIMESTAMP: Generated on $(date)
+PROJECT: Autoencoder Anomaly Detection for Market Manipulation
+DEVELOPER: User collaboration with AI assistant

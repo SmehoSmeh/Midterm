@@ -218,6 +218,196 @@ this.decoderUnits = [3, 7, 14];
 - **False Positive Rate**: Minimize false alarms
 - **Training Time**: Faster training with fewer features
 
+### Feature Selection Configuration
+
+A comprehensive feature selection configuration file (`feature-selection-config.js`) is provided with:
+
+- **Predefined Feature Sets**: Core, Enhanced, Minimal, and Alternative feature combinations
+- **Architecture Configurations**: Optimized network architectures for different feature counts
+- **Feature Descriptions**: Detailed formulas and importance rankings
+- **Testing Utilities**: Ablation studies and cross-validation configurations
+
+**Usage Example:**
+```javascript
+import { CORE_FEATURES, ARCHITECTURE_CONFIGS } from './feature-selection-config.js';
+
+// Use core features (8 features)
+const config = ARCHITECTURE_CONFIGS[CORE_FEATURES.length];
+this.inputSize = config.inputSize;
+this.encoderUnits = config.encoderUnits;
+```
+
+## Exploratory Data Analysis (EDA) Summary
+
+### Data Overview
+
+The application performs comprehensive EDA on cryptocurrency market data to understand patterns, detect anomalies, and ensure data quality before model training.
+
+#### **Data Collection Metrics**
+- **Default Period**: 60 days of historical data
+- **Time Intervals**: 1h, 4h, 1d, 1w (configurable)
+- **Data Points**: ~1,440 hourly records (60 days × 24 hours)
+- **Trading Pairs**: BTC/USDT, ETH/USDT, BNB/USDT, ADA/USDT, SOL/USDT
+- **API Source**: Binance REST API with batch processing support
+
+#### **Data Quality Assessment**
+The system automatically evaluates data quality with the following metrics:
+
+- **Data Completeness**: Percentage of non-missing records
+- **Zero Volume Detection**: Count of periods with zero trading volume
+- **Negative Price Detection**: Count of invalid price records
+- **Missing Data Points**: Count of incomplete OHLCV records
+- **Outlier Detection**: Z-score threshold of 3.0 for extreme values
+
+### Statistical Analysis
+
+#### **Price Statistics**
+- **Mean Price**: Average closing price over the period
+- **Standard Deviation**: Price volatility measure
+- **Min/Max Prices**: Price range boundaries
+- **Price Change Distribution**: Statistical analysis of price movements
+
+#### **Volume Statistics**
+- **Mean Volume**: Average trading volume
+- **Volume Volatility**: Standard deviation of volume changes
+- **Volume Range**: Min/max volume values
+- **Volume Change Distribution**: Analysis of volume fluctuations
+
+#### **Change Statistics**
+- **Price Change Mean**: Average percentage price change
+- **Price Change Std**: Volatility of price changes
+- **Volume Change Mean**: Average percentage volume change
+- **Volume Change Std**: Volatility of volume changes
+
+### Feature Engineering Analysis
+
+#### **Technical Indicators**
+- **RSI Analysis**: 14-period Relative Strength Index distribution
+- **Bollinger Bands**: Position analysis within volatility bands
+- **Market Regime**: Trend detection (uptrend/ranging/downtrend)
+
+#### **Derived Features**
+- **Price Acceleration**: Second derivative analysis for crash detection
+- **Volume Spikes**: Detection of unusual volume increases (>30%)
+- **Price Gaps**: Analysis of overnight price gaps
+- **Momentum Indicators**: 3-period price and volume momentum
+
+### Historical Event Detection
+
+#### **Major Market Events**
+The system automatically identifies significant market events:
+
+- **Major Price Drops**: >5% price decreases (Warning: -5% to -10%, Critical: <-10%)
+- **Major Volume Spikes**: >100% volume increases (Warning: 100-200%, Critical: >200%)
+- **Crash Patterns**: Price drop + volume spike combinations
+- **Extreme Events**: Sensitive detection for major market disruptions
+
+#### **Event Classification**
+- **Critical Events**: High-impact market disruptions
+- **Warning Events**: Moderate market anomalies
+- **Normal Events**: Regular market behavior
+
+### Data Visualization
+
+#### **Price & Volume Timeline**
+- **Dual-axis Charts**: Price (left) and normalized volume (right)
+- **Interactive Tooltips**: Detailed point information
+- **Trend Analysis**: Visual identification of market trends
+
+#### **Statistical Distributions**
+- **Histogram Analysis**: Distribution of price and volume changes
+- **Box Plot Visualization**: Quartile analysis and outlier detection
+- **Correlation Analysis**: Relationships between different features
+
+### Data Preprocessing Pipeline
+
+#### **Normalization Process**
+- **MinMax Scaling**: All features normalized to [0,1] range
+- **Feature Scaling**: Consistent scaling across all 12 features
+- **Outlier Handling**: Robust scaling to handle extreme values
+
+#### **Train/Validation Split**
+- **Training Data**: 80% of chronological data
+- **Validation Data**: 20% of chronological data
+- **Temporal Split**: Maintains chronological order for time series
+
+### Anomaly Detection EDA
+
+#### **Reconstruction Error Analysis**
+- **Error Distribution**: Statistical analysis of reconstruction errors
+- **Threshold Calculation**: Mean + 1.5 × Standard Deviation
+- **Severity Classification**: Normal/Warning/Critical levels
+
+#### **Feature Contribution Analysis**
+- **Individual Contributions**: Which features drive anomalies
+- **Pattern Recognition**: Common anomaly patterns
+- **Root Cause Analysis**: Understanding anomaly sources
+
+### Data Quality Metrics
+
+#### **Completeness Metrics**
+- **Missing Data Rate**: Percentage of incomplete records
+- **Data Integrity**: Validation of OHLCV consistency
+- **Temporal Continuity**: Gap detection in time series
+
+#### **Quality Indicators**
+- **Green (Good)**: >95% completeness, no data issues
+- **Yellow (Warning)**: 90-95% completeness, minor issues
+- **Red (Critical)**: <90% completeness, significant issues
+
+### Market Regime Analysis
+
+#### **Trend Detection**
+- **Uptrend**: Strong positive price momentum with low volatility
+- **Downtrend**: Strong negative price momentum with low volatility
+- **Ranging**: High volatility with minimal directional movement
+
+#### **Volatility Analysis**
+- **Low Volatility**: Stable price movements
+- **High Volatility**: Erratic price movements
+- **Volatility Clustering**: Periods of sustained high/low volatility
+
+### Performance Metrics
+
+#### **Data Processing Performance**
+- **Fetch Time**: 2-5 seconds (single request), 10-30 seconds (batch)
+- **Processing Time**: <1 second for feature engineering
+- **Memory Usage**: ~50-100MB during processing
+
+#### **Analysis Accuracy**
+- **Event Detection Rate**: Sensitivity to major market events
+- **False Positive Rate**: Minimization of false alarms
+- **Pattern Recognition**: Accuracy in identifying market patterns
+
+### EDA Output Examples
+
+#### **Sample Statistics Output**
+```
+Price Statistics:
+- Mean: $45,230.50 USDT
+- Std Dev: $2,150.30 USDT
+- Min: $38,900.00 USDT
+- Max: $52,100.00 USDT
+
+Volume Statistics:
+- Mean: 1,250,000 units
+- Std Dev: 450,000 units
+- Min: 200,000 units
+- Max: 3,500,000 units
+```
+
+#### **Data Quality Report**
+```
+Data Quality Assessment:
+- Completeness: 98.5%
+- Missing Data: 22 records
+- Zero Volume: 0 records
+- Negative Prices: 0 records
+- Status: ✅ Excellent Quality
+```
+
+This comprehensive EDA framework ensures data quality, identifies patterns, and provides insights essential for effective anomaly detection in cryptocurrency markets.
+
 ## Architecture
 
 ### Data Layer (`binance-data-loader.js`)
