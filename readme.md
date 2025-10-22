@@ -57,6 +57,167 @@ The system uses a neural autoencoder trained on "normal" market periods and flag
 - **Early Stopping**: Automatic training termination to prevent overfitting
 - **Memory Management**: Efficient tensor disposal and memory cleanup
 
+## Feature Selection & Engineering
+
+### Current Encoder Features (12 Features)
+
+The autoencoder encoder currently uses 12 carefully selected market features optimized for anomaly detection:
+
+#### **Core Price Features**
+1. **`priceChange`** - Close-to-close percentage change
+   - Formula: `((close - previous_close) / previous_close) * 100`
+   - Purpose: Captures basic price movements and trends
+
+2. **`priceAcceleration`** - Second derivative of price changes
+   - Formula: `priceChange - previous_priceChange`
+   - Purpose: Detects sudden price accelerations (crash patterns)
+
+3. **`priceGap`** - Gap between opening price and previous close
+   - Formula: `|open - previous_close| / previous_close * 100`
+   - Purpose: Identifies overnight gaps and flash crashes
+
+4. **`priceMomentum`** - 3-period price momentum
+   - Formula: `(close - close_3_periods_ago) / close_3_periods_ago * 100`
+   - Purpose: Captures medium-term price trends
+
+#### **Volume Features**
+5. **`volume`** - Raw trading volume (MinMax normalized)
+   - Purpose: Market activity and liquidity indicator
+
+6. **`volumeSpike`** - Volume spikes above 30% threshold
+   - Formula: `max(0, volumeChange - 30)`
+   - Purpose: Detects unusual volume surges
+
+7. **`volumeMomentum`** - 3-period volume momentum
+   - Formula: `(volume - volume_3_periods_ago) / volume_3_periods_ago * 100`
+   - Purpose: Captures volume trend changes
+
+#### **Technical Indicators**
+8. **`rsi`** - 14-period Relative Strength Index
+   - Range: 0-100 (normalized to 0-1)
+   - Purpose: Momentum oscillator for overbought/oversold conditions
+
+9. **`bollingerPosition`** - Position within Bollinger Bands
+   - Range: -1 (lower band) to 1 (upper band)
+   - Purpose: Volatility and mean reversion indicator
+
+10. **`marketRegime`** - Market trend detection
+    - Values: -1 (downtrend), 0 (ranging), 1 (uptrend)
+    - Purpose: Contextual market state classification
+
+#### **Simulated Features**
+11. **`fundingRateProxy`** - Simulated funding rate for spot markets
+    - Formula: `(momentumFactor * 0.5 + volumeFactor * 0.3 + volatilityFactor * 0.2) * 0.01`
+    - Purpose: Approximates futures funding rate behavior
+
+12. **`openInterestProxy`** - Simulated open interest
+    - Formula: `(volumeFactor * 0.4 + tradeIntensity * 0.3 + priceMomentum * 0.3)`
+    - Purpose: Estimates market positioning
+
+### Feature Selection Recommendations
+
+#### **Core Feature Set (8 Features) - Recommended**
+For optimal performance with reduced complexity:
+```javascript
+const coreFeatures = [
+    'priceChange',      // Essential price movement
+    'volume',           // Market activity
+    'priceAcceleration', // Sudden price changes
+    'volumeSpike',     // Unusual volume
+    'priceGap',        // Price gaps
+    'rsi',            // Momentum oscillator
+    'bollingerPosition', // Volatility position
+    'marketRegime'    // Trend context
+];
+```
+
+#### **Enhanced Feature Set (10 Features)**
+For comprehensive analysis with moderate complexity:
+```javascript
+const enhancedFeatures = [
+    'priceChange',      // Price movement
+    'volume',           // Volume
+    'priceAcceleration', // Price acceleration
+    'volumeSpike',     // Volume spikes
+    'priceGap',        // Price gaps
+    'priceMomentum',   // Price momentum
+    'volumeMomentum',  // Volume momentum
+    'rsi',            // RSI
+    'bollingerPosition', // Bollinger position
+    'marketRegime'    // Market regime
+];
+```
+
+### Feature Importance Analysis
+
+#### **High Importance Features** ⭐⭐⭐
+- **`priceChange`** - Fundamental price movement indicator
+- **`priceAcceleration`** - Critical for crash detection
+- **`volumeSpike`** - Direct anomaly indicator
+- **`priceGap`** - Flash crash detection
+
+#### **Medium Importance Features** ⭐⭐
+- **`volume`** - Market activity baseline
+- **`rsi`** - Momentum context
+- **`bollingerPosition`** - Volatility context
+- **`marketRegime`** - Trend context
+
+#### **Lower Importance Features** ⭐
+- **`priceMomentum`** - Redundant with priceAcceleration
+- **`volumeMomentum`** - Redundant with volumeSpike
+- **`fundingRateProxy`** - Limited value for spot markets
+- **`openInterestProxy`** - Simulated feature
+
+### Architecture Optimization
+
+When reducing features, adjust the autoencoder architecture:
+
+```javascript
+// For 8 features
+this.inputSize = 8;
+this.encoderUnits = [12, 6, 3];
+this.latentSize = 2;
+this.decoderUnits = [3, 6, 12];
+
+// For 10 features
+this.inputSize = 10;
+this.encoderUnits = [14, 7, 3];
+this.latentSize = 2;
+this.decoderUnits = [3, 7, 14];
+```
+
+### Alternative Features to Consider
+
+#### **Volatility Features**
+- **`volatility`** - Intraday price range: `((high - low) / close) * 100`
+- **`volatilityRatio`** - Current vs average volatility
+
+#### **Volume Features**
+- **`volumeRatio`** - Current vs average volume
+- **`buySellRatio`** - Taker buy vs sell volume ratio
+
+#### **Price Features**
+- **`vwapDeviation`** - Deviation from Volume Weighted Average Price
+- **`priceRangePosition`** - Position within daily range: `(close - low) / (high - low)`
+
+### Feature Selection Testing
+
+#### **Ablation Studies**
+1. Train models with different feature combinations
+2. Compare reconstruction errors and anomaly detection accuracy
+3. Analyze feature contribution scores for each anomaly
+
+#### **Cross-Validation**
+1. Test on different time periods (bull/bear markets)
+2. Validate on different trading pairs
+3. Measure performance across various market conditions
+
+#### **Performance Metrics**
+- **Reconstruction Error**: Lower is better
+- **Anomaly Detection Rate**: Balance between sensitivity and specificity
+- **False Positive Rate**: Minimize false alarms
+- **Training Time**: Faster training with fewer features
+
 ## Architecture
 
 ### Data Layer (`binance-data-loader.js`)
