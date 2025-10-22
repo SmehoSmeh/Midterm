@@ -14,36 +14,104 @@ The system uses a neural autoencoder trained on "normal" market periods and flag
 
 ## Features
 
+### Core Functionality
 - **Real-time Data Fetching**: Direct integration with Binance API for live market data
+- **Batch Data Processing**: Efficient handling of large date ranges with automatic batching
 - **MLP Autoencoder**: Deep neural network architecture for pattern recognition
-- **Visual Anomaly Detection**: Color-coded visualization of anomaly severity levels
-- **Feature Analysis**: Detailed breakdown of which market features contribute to anomalies
-- **Model Persistence**: Save and load trained models for future use
+- **Ensemble Autoencoder**: Multiple model voting system for improved accuracy
+- **Advanced Feature Engineering**: 12 comprehensive market features including RSI, Bollinger Bands, and market regime detection
+
+### Data Management
+- **Flexible Date Ranges**: Custom date range selection or default lookback periods
+- **Multiple Time Intervals**: Support for 1h, 4h, 1d, and 1w intervals
+- **Data Quality Analysis**: Automatic detection of missing data, zero volume, and corrupted records
+- **Raw Data Export**: Download processed data as JSON files
+- **MinMax Normalization**: Consistent data scaling for optimal training
+
+### Anomaly Detection
+- **Multi-level Severity Classification**: Normal, Warning, and Critical anomaly levels
+- **Sensitive Threshold Detection**: Optimized thresholds for catching major market events
+- **Feature Contribution Analysis**: Detailed breakdown of which market features contribute to anomalies
+- **Major Event Detection**: Specialized algorithms for identifying crash patterns and market manipulation
+- **Historical Event Analysis**: Automatic detection of significant market events
+
+### Visualization & Analysis
 - **Interactive Charts**: Training progress, reconstruction errors, and severity distribution
+- **Price & Volume Timeline**: Dual-axis charts showing price and volume trends
+- **Anomaly Timeline**: Color-coded scatter plots showing anomaly distribution over time
+- **Severity Distribution**: Doughnut charts showing anomaly breakdown
+- **Feature Contribution Charts**: Visual analysis of feature importance
+
+### User Interface
+- **Modern Dark Theme**: Professional gradient-based UI with glassmorphism effects
+- **Responsive Design**: Mobile-friendly interface with adaptive layouts
+- **Real-time Progress Tracking**: Live progress bars and status updates
+- **Interactive Controls**: Customizable training parameters and data range selection
+- **Data Sample Tables**: Preview of raw and processed data
+- **Statistics Dashboard**: Comprehensive data quality and performance metrics
+
+### Model Management
+- **Model Persistence**: Save and load trained models using IndexedDB
+- **Configuration Storage**: Persistent storage of model parameters and thresholds
+- **Training History**: Track and visualize training progress over epochs
+- **Early Stopping**: Automatic training termination to prevent overfitting
+- **Memory Management**: Efficient tensor disposal and memory cleanup
 
 ## Architecture
 
 ### Data Layer (`binance-data-loader.js`)
-- Fetches 1-hour candlestick data from Binance API
-- Processes 30 days of historical data (720 data points)
-- Calculates derived features:
-  - Price change percentage
-  - Volume changes
-  - Funding rate proxy (for spot markets)
-  - Open interest proxy
-- Applies MinMax normalization for consistent training
+- **Batch Data Fetching**: Handles large date ranges with automatic API batching (up to 1000 records per request)
+- **Multiple Time Intervals**: Support for 1s, 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1M intervals
+- **Advanced Feature Engineering**: Calculates 12 comprehensive features:
+  - Price change percentage and acceleration
+  - Volume changes and spikes
+  - Funding rate proxy (simulated for spot markets)
+  - Open interest proxy (simulated for spot markets)
+  - Price gaps and momentum indicators
+  - Volume momentum analysis
+  - RSI (Relative Strength Index) calculation
+  - Bollinger Bands position
+  - Market regime detection (trending vs ranging)
+- **Data Quality Control**: Automatic detection and reporting of data quality issues
+- **MinMax Normalization**: Consistent scaling across all features for optimal training
+- **Historical Event Analysis**: Built-in detection of major market events and crash patterns
 
 ### Model Layer (`autoencoder.js`)
-- **Encoder**: 4 → 16 → 8 → 4 → 2 neurons (compression)
-- **Decoder**: 2 → 4 → 8 → 16 → 4 neurons (reconstruction)
-- **Training**: Mean Squared Error loss with Adam optimizer
-- **Anomaly Detection**: Threshold-based classification using reconstruction error
+- **MLP Autoencoder**: Multi-layer perceptron with encoder-decoder architecture
+  - **Encoder**: 12 → 16 → 8 → 4 → 2 neurons (compression to latent space)
+  - **Decoder**: 2 → 4 → 8 → 16 → 12 neurons (reconstruction)
+  - **Dropout**: 0.2 dropout rate for regularization
+  - **Activation**: ReLU for hidden layers, linear for output
+- **Ensemble Autoencoder**: Multiple model voting system for improved accuracy
+  - 3 different autoencoder configurations
+  - Majority voting for anomaly classification
+  - Confidence scoring for ensemble predictions
+- **Training Optimization**: 
+  - Adam optimizer with learning rate 0.001
+  - Mean Squared Error loss function
+  - Early stopping with patience of 5 epochs
+  - Batch size optimization (default 64)
+- **Anomaly Detection**: 
+  - Statistical threshold calculation (mean + 1.5 × std)
+  - Multi-level severity classification (Normal/Warning/Critical)
+  - Feature contribution analysis for root cause identification
+  - Major event pattern recognition
 
 ### Application Layer (`app.js`)
-- Manages UI interactions and workflow
-- Coordinates data fetching, training, and detection
-- Handles visualization and result display
-- Provides model persistence functionality
+- **UI Management**: Comprehensive interface for all user interactions
+- **Workflow Coordination**: Orchestrates data fetching, training, and detection processes
+- **Real-time Visualization**: 
+  - Training loss charts with validation curves
+  - Reconstruction error timeline with color-coded severity
+  - Anomaly severity distribution (doughnut charts)
+  - Price and volume timeline with dual-axis display
+- **Data Visualization**: 
+  - Raw data sample tables
+  - Comprehensive statistics dashboard
+  - Data quality metrics and warnings
+  - Historical events analysis with October 10th special detection
+- **Model Persistence**: Save/load functionality using IndexedDB and localStorage
+- **Memory Management**: Proper tensor disposal and resource cleanup
 
 ## Usage Instructions
 
@@ -54,59 +122,94 @@ The system uses a neural autoencoder trained on "normal" market periods and flag
 
 ### 2. Data Collection
 1. Select a trading pair from the dropdown (BTC/USDT, ETH/USDT, etc.)
-2. Click "Fetch Market Data" to download 30 days of historical data
-3. Wait for data processing and normalization to complete
-4. Review the data summary showing training/validation split
+2. Choose data interval (1h, 4h, 1d, 1w)
+3. Configure date range:
+   - **Default**: Use lookback days (default: 60 days)
+   - **Custom**: Enable custom range and select start/end dates
+4. Click "Fetch Market Data" to download historical data
+5. Monitor batch processing progress for large date ranges
+6. Review comprehensive data summary and quality metrics
+7. Examine data sample table and statistics dashboard
 
 ### 3. Model Training
 1. Adjust training parameters if needed:
-   - **Epochs**: Number of training iterations (default: 100)
-   - **Batch Size**: Training batch size (default: 32)
+   - **Epochs**: Number of training iterations (default: 30)
+   - **Batch Size**: Training batch size (default: 64)
 2. Click "Train Autoencoder" to begin training
-3. Monitor training progress and loss curves
-4. Training typically takes 1-3 minutes depending on hardware
+3. Monitor real-time training progress and loss curves
+4. Early stopping will automatically terminate training if no improvement
+5. Training typically takes 1-3 minutes for standard model
+6. Review training history and model performance metrics
 
 ### 4. Anomaly Detection
 1. Click "Detect Anomalies" after training completes
-2. Review the reconstruction error timeline chart
-3. Examine the anomaly severity distribution
-4. Check the top anomalies table for specific timestamps
+2. Review the reconstruction error timeline chart with color-coded severity
+3. Examine the anomaly severity distribution (doughnut chart)
+4. Check the top anomalies table for specific timestamps and importance scores
 5. Analyze feature contributions for the most significant anomalies
+6. Review historical events analysis for major market events
+7. Examine price and volume timeline for context
 
 ### 5. Model Management
-- **Save Model**: Store trained weights and configuration locally
-- **Load Model**: Restore previously saved model
-- **Reset**: Clear all data and start fresh
+- **Save Model**: Store trained weights and configuration locally using IndexedDB
+- **Load Model**: Restore previously saved model and configuration
+- **Download Data**: Export raw market data as JSON file
+- **Reset**: Clear all data and start fresh with clean state
 
 ## API Integration
 
 ### Binance API Endpoints Used
 - **Klines**: `https://api.binance.com/api/v3/klines`
-  - Parameters: `symbol`, `interval=1h`, `limit=720`
-  - Returns: OHLCV data for 30 days
+  - Parameters: `symbol`, `interval`, `startTime`, `endTime`, `limit`
+  - Returns: OHLCV data with comprehensive market information
+  - Rate Limiting: 100ms delay between batch requests
+  - Maximum Records: 1000 per request (Binance API limit)
 
-### Data Processing
-The application processes raw Binance data into four normalized features:
+### Data Processing Pipeline
+The application processes raw Binance data into twelve normalized features:
 
 1. **Price Change**: Close-to-close percentage change
 2. **Volume**: Normalized trading volume
 3. **Funding Rate Proxy**: Simulated funding rate using price momentum and volume
 4. **Open Interest Proxy**: Simulated open interest using volume and trade activity
+5. **Price Acceleration**: Second derivative of price changes
+6. **Volume Spike**: Detection of unusual volume increases (>30%)
+7. **Price Gap**: Gap between opening price and previous close
+8. **Price Momentum**: 3-period price momentum indicator
+9. **Volume Momentum**: 3-period volume momentum indicator
+10. **RSI**: 14-period Relative Strength Index
+11. **Bollinger Position**: Position within Bollinger Bands (-1 to 1)
+12. **Market Regime**: Market trend detection (uptrend/ranging/downtrend)
 
 ## Anomaly Detection Logic
 
 ### Threshold Calculation
-- Training data reconstruction errors are analyzed
-- Threshold = Mean + 2.5 × Standard Deviation
-- This captures ~99% of normal market behavior
+- Training data reconstruction errors are analyzed using statistical methods
+- Primary threshold: Mean + 1.5 × Standard Deviation
+- Percentile-based threshold: 95th percentile of reconstruction errors
+- Final threshold: Minimum of statistical and percentile methods for sensitivity
+- This captures ~95% of normal market behavior while detecting major events
 
 ### Severity Levels
 - **Green (Normal)**: Error < threshold
-- **Yellow (Warning)**: threshold ≤ error < 1.5 × threshold
-- **Red (Critical)**: error ≥ 1.5 × threshold
+- **Yellow (Warning)**: threshold ≤ error < 1.2 × threshold
+- **Red (Critical)**: error ≥ 1.2 × threshold
 
 ### Feature Contribution Analysis
-For each anomaly, the system calculates which features contributed most to the reconstruction error, helping identify the root cause of unusual market behavior.
+For each anomaly, the system calculates which features contributed most to the reconstruction error, helping identify the root cause of unusual market behavior. The analysis includes:
+
+- **Individual Feature Contributions**: Absolute difference between original and reconstructed values
+- **Feature Importance Ranking**: Sorted by contribution magnitude
+- **Pattern Recognition**: Detection of specific anomaly patterns (crashes, spikes, etc.)
+- **Major Event Classification**: Special flags for significant market events
+
+### Major Event Detection
+The system includes specialized algorithms for detecting major market events:
+
+- **Crash Patterns**: Price drop + volume spike combinations
+- **Flash Crashes**: Extreme negative price changes with massive volume
+- **Market Manipulation**: Unusual volume spikes with minimal price change
+- **Liquidation Cascades**: Multiple consecutive anomalies with increasing severity
 
 ## Interpretation Guide
 
@@ -162,18 +265,79 @@ For each anomaly, the system calculates which features contributed most to the r
 - **TensorFlow.js**: 4.22.0 (neural network framework)
 - **Chart.js**: 4.4.1 (data visualization)
 - **Native Fetch API**: Binance API communication
+- **IndexedDB**: Model persistence storage
+- **LocalStorage**: Configuration and metadata storage
 
 ### Browser Requirements
 - Modern browser with ES6+ support
-- WebGL support for TensorFlow.js
+- WebGL support for TensorFlow.js GPU acceleration
 - IndexedDB support for model persistence
 - Minimum 4GB RAM recommended
+- Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
 
-### Performance
-- **Data Fetching**: ~2-5 seconds
-- **Training Time**: 1-3 minutes (100 epochs)
-- **Anomaly Detection**: <1 second
-- **Memory Usage**: ~50-100MB during training
+### Performance Specifications
+- **Data Fetching**: 
+  - Single request: ~2-5 seconds (up to 1000 records)
+  - Batch processing: ~10-30 seconds (large date ranges)
+  - Rate limiting: 100ms delay between batches
+- **Training Performance**:
+  - Standard model: 1-3 minutes (30 epochs)
+  - Ensemble model: 3-9 minutes (3 models × 30 epochs)
+  - Early stopping: Automatic termination after 5 epochs without improvement
+- **Anomaly Detection**: <1 second for validation data
+- **Memory Usage**: 
+  - During training: ~100-200MB
+  - During inference: ~50-100MB
+  - Tensor cleanup: Automatic disposal after operations
+
+### Data Processing Capabilities
+- **Maximum Data Points**: 1000 per API request (Binance limit)
+- **Batch Processing**: Automatic splitting for large date ranges
+- **Feature Engineering**: 12 comprehensive market indicators
+- **Normalization**: MinMax scaling across all features
+- **Data Quality**: Automatic validation and error reporting
+
+### Model Architecture Details
+- **Input Features**: 12-dimensional feature vectors
+- **Latent Space**: 2-dimensional compressed representation
+- **Network Depth**: 5 layers (encoder) + 5 layers (decoder)
+- **Total Parameters**: ~1,000 trainable parameters
+- **Activation Functions**: ReLU (hidden), Linear (output)
+- **Regularization**: Dropout (0.2) and early stopping
+
+## User Interface Features
+
+### Modern Design Elements
+- **Glassmorphism Effects**: Frosted glass appearance with backdrop blur
+- **Gradient Backgrounds**: Professional blue-purple gradient theme
+- **Responsive Grid Layout**: Adaptive design for all screen sizes
+- **Interactive Animations**: Smooth hover effects and transitions
+- **Color-coded Elements**: Consistent color palette for different data types
+
+### Advanced Controls
+- **Custom Date Range Selection**: DateTime picker with validation
+- **Flexible Time Intervals**: Support for multiple trading timeframes
+- **Training Parameter Adjustment**: Real-time modification of epochs and batch size
+- **Data Range Options**: Choice between custom dates or default lookback periods
+- **Model Management**: Save/load functionality with persistent storage
+
+### Data Visualization Dashboard
+- **Real-time Progress Tracking**: Live progress bars with percentage indicators
+- **Interactive Charts**: 
+  - Training loss curves with validation metrics
+  - Reconstruction error scatter plots with severity coloring
+  - Anomaly distribution doughnut charts
+  - Price/volume dual-axis timeline charts
+- **Data Quality Metrics**: Comprehensive statistics with color-coded indicators
+- **Sample Data Tables**: Preview of raw and processed market data
+- **Historical Events Analysis**: Special detection for significant market events
+
+### User Experience Enhancements
+- **Status Messages**: Real-time feedback on all operations
+- **Error Handling**: User-friendly error messages with troubleshooting hints
+- **Loading States**: Visual indicators during data processing and training
+- **Button State Management**: Context-aware enabling/disabling of controls
+- **Memory Management**: Automatic cleanup and resource optimization
 
 ## Troubleshooting
 
@@ -212,19 +376,30 @@ For each anomaly, the system calculates which features contributed most to the r
 ## Future Enhancements
 
 ### Planned Features
-- Real-time monitoring mode
-- Multiple timeframe analysis
-- Custom threshold adjustment
-- Export functionality for results
-- Additional trading pairs
-- Advanced feature engineering
+- **Real-time Monitoring Mode**: Live data streaming with WebSocket integration
+- **Multiple Timeframe Analysis**: Simultaneous analysis across different intervals
+- **Custom Threshold Adjustment**: User-configurable anomaly detection sensitivity
+- **Advanced Export Functionality**: CSV, JSON, and PDF report generation
+- **Additional Trading Pairs**: Support for more cryptocurrency pairs
+- **Advanced Feature Engineering**: Technical indicators like MACD, Stochastic, etc.
+- **Model Comparison Tools**: Side-by-side comparison of different model architectures
 
 ### Technical Improvements
-- WebSocket integration for live data
-- Model ensemble methods
-- Automated hyperparameter tuning
-- Cloud deployment options
-- Mobile-responsive design
+- **WebSocket Integration**: Real-time data streaming from Binance
+- **Model Ensemble Methods**: Advanced voting and stacking techniques
+- **Automated Hyperparameter Tuning**: Grid search and Bayesian optimization
+- **Cloud Deployment Options**: Docker containers and cloud hosting
+- **Mobile-responsive Design**: Enhanced mobile experience
+- **Progressive Web App**: Offline functionality and app-like experience
+- **API Integration**: RESTful API for external system integration
+
+### Advanced Analytics
+- **Pattern Recognition**: Machine learning-based pattern identification
+- **Market Sentiment Analysis**: Integration with social media and news data
+- **Risk Assessment**: Portfolio-level risk analysis
+- **Backtesting Framework**: Historical performance validation
+- **Alert System**: Email and push notifications for anomalies
+- **Custom Dashboards**: User-configurable visualization layouts
 
 ## Contributing
 
